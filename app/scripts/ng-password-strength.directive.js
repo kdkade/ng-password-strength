@@ -15,9 +15,12 @@
 
     function ngPasswordStrength(PasswordStrengthService) {
       return {
-        templateUrl: 'app/forgot-password/strength-indicator.tpl.html',
+        templateUrl: function(elem, attrs) {
+            return attrs.tpl || 'components/strength-indicator/strength-indicator.tpl.html'
+        },
         restrict: 'A',
         scope: {
+          tpl: '@',
           pwd: '=ngPasswordStrength',
           value: '=strength',
           innerClassPrefix: '@?',
