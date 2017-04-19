@@ -1,8 +1,6 @@
 (function() {
   'use strict';
 
-  /* global _ */
-
   /**
    * @ngdoc directive
    * @name ngPasswordStrengthApp.factory:PasswordStrengthService
@@ -58,10 +56,13 @@
           counts.pos.numbers = matches.pos.numbers ? matches.pos.numbers.length : 0;
           counts.pos.symbols = matches.pos.symbols ? matches.pos.symbols.length : 0;
 
-          tmp = _.reduce(counts.pos, function(memo, val) {
-            // if has count will add 1
-            return memo + Math.min(1, val);
-          }, 0);
+          tmp = 0;
+          for (var property in counts.pos) {
+            if (counts.pos.hasOwnProperty(property)) {
+              // if has count will add 1
+              tmp += Math.min(1, counts.pos[property]);
+            }
+          }
 
           counts.pos.numChars = p.length;
           tmp += (counts.pos.numChars >= 8) ? 1 : 0;
@@ -111,17 +112,15 @@
           }
 
           // repeated chars
-          counts.neg.repeated = _.chain(p.toLowerCase().split('')).
-          countBy(function(val) {
-              return val;
-            })
-            .reject(function(val) {
-              return val === 1;
-            })
-            .reduce(function(memo, val) {
-              return memo + val;
-            }, 0)
-            .value();
+          var repeatedCharacters = p.length;
+          var lowerCasePassword = p.toLowerCase();
+          for (var i = 0; i < lowerCasePassword.length; i++) {
+            var regexp = new RegExp(lowerCasePassword[i], 'g');
+            if ((lowerCasePassword.match(regexp).length) === 1) {
+              repeatedCharacters--;
+            }
+          }
+          counts.neg.repeated = repeatedCharacters;
 
           // Calculations
           strength += counts.pos.numChars * 4;
